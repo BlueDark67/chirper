@@ -51,6 +51,36 @@
                             @endif
                         </div>
                         <p class="mt-4 text-lg text-gray-900">{{ $chirp->message }}</p>
+                        <div>
+                            {{ $chirp->likes->count() }} Likes
+                            @if($chirp->likes()->where('user_id', auth()->id())->exists())
+                                <form method="POST" action="{{ route('chirps.unlike', $chirp) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit">Unlike</button>
+                                </form>
+                            @else
+                                <form method="POST" action="{{ route('chirps.like', $chirp) }}">
+                                    @csrf
+                                    <button type="submit">Like</button>
+                                </form>
+                            @endif
+                            @if(auth()->user()->id !== $chirp->user->id)
+                                @if(auth()->user()->followings()->where('following_id', $chirp->user->id)->exists())
+                                    <form method="POST" action="{{ route('users.unfollow', $chirp->user) }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit">Unfollow</button>
+                                    </form>
+                                @else
+                                    <form method="POST" action="{{ route('users.follow', $chirp->user) }}">
+                                        @csrf
+                                        <button type="submit">Follow</button>
+                                    </form>
+                                @endif
+                            @endif
+                        </div>
+
                     </div>
                 </div>
             @endforeach

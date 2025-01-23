@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Chirp;
 use App\Http\Controllers\Controller;
 //use http\Env\Response;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
@@ -92,5 +93,27 @@ class ChirpController extends Controller
        $chirp->delete();
 
        return redirect(route('chirps.index'));
+    }
+
+    public function like(Chirp $chirp, Request $request): RedirectResponse
+    {
+        $userId = $request->user()->id;
+
+        if (!$chirp->likes()->where('user_id', $userId)->exists()) {
+            $chirp->likes()->create(['user_id' => $userId]);
+        }
+
+        return redirect(route('chirps.index'));
+    }
+
+    public  function unlike(Chirp $chirp, Request $request): RedirectResponse
+    {
+
+        $userId = $request->user()->id;
+
+
+        $chirp->likes()->where('user_id', $userId)->delete();
+
+        return redirect(route('chirps.index'));
     }
 }
